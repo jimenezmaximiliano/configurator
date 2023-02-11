@@ -19,7 +19,7 @@ func TestGettingAConfiguratorFromAFile(test *testing.T) {
 	`
 	const path = "./.env"
 
-	err := os.WriteFile(path, []byte(content), 777)
+	err := os.WriteFile(path, []byte(content), 0777)
 	require.NoError(test, err)
 	defer func() {
 		err := os.Remove(path)
