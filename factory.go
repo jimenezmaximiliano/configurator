@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// NewConfiguratorFromFile reads configuration values from a .env file given a path.
 func NewConfiguratorFromFile(path string) (Configurator, error) {
 	envVars, err := getEnvVarsFromFile(path)
 	if err != nil {
@@ -20,6 +21,7 @@ func NewConfiguratorFromFile(path string) (Configurator, error) {
 	}, nil
 }
 
+// NewConfiguratorFromOSEnvironment reads environment variables from the OS.
 func NewConfiguratorFromOSEnvironment() (Configurator, error) {
 	envVars, err := godotenv.Unmarshal(strings.Join(os.Environ(), "\n"))
 	if err != nil {
