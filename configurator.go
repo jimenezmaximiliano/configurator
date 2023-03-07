@@ -1,6 +1,8 @@
 package configurator
 
 import (
+	"strconv"
+
 	"github.com/pkg/errors"
 )
 
@@ -11,6 +13,8 @@ type Configurator interface {
 	GetString(key string, defaultValue string) string
 	MustGetBoolean(key string) (bool, error)
 	GetBoolean(key string, defaultValue bool) bool
+	MustGetInteger(key string) (int64, error)
+	GetInteger(key string, defaultValue int64) int64
 }
 
 type config struct {
@@ -35,6 +39,17 @@ func (conf config) MustGetBoolean(key string) (bool, error) {
 	return false, errors.Errorf("key [%s] not found in env", key)
 }
 
+// GetBoolean returns a boolean value based on the provided key or the default value if it couldn't be found,
+// or its value is invalid.
+func (conf config) GetBoolean(key string, defaultValue bool) bool {
+	keyValue, err := conf.MustGetBoolean(key)
+	if err != nil {
+		return defaultValue
+	}
+
+	return keyValue
+}
+
 // MustGetString returns a string or an error if the key couldn't be found.
 func (conf config) MustGetString(key string) (string, error) {
 	keyValue, keyIsPresent := conf.env[key]
@@ -55,10 +70,25 @@ func (conf config) GetString(key string, defaultValue string) string {
 	return keyValue
 }
 
-// GetBoolean returns a boolean value based on the provided key or the default value if it couldn't be found,
+// MustGetInteger returns an integer or an error if the key couldn't be found, or its value is invalid.
+func (conf config) MustGetInteger(key string) (int64, error) {
+	keyValue, keyIsPresent := conf.env[key]
+	if !keyIsPresent {
+		return 0, errors.Errorf("key [%s] not found in env", key)
+	}
+
+	integer, err := strconv.ParseInt(keyValue, 10, 64)
+	if err != nil {
+		return 0, errors.Wrapf(err, "key [%s] has an invalid integer value [%s]", key, keyValue)
+	}
+
+	return integer, nil
+}
+
+// GetInteger returns an integer value based on the provided key or the default value if it couldn't be found,
 // or its value is invalid.
-func (conf config) GetBoolean(key string, defaultValue bool) bool {
-	keyValue, err := conf.MustGetBoolean(key)
+func (conf config) GetInteger(key string, defaultValue int64) int64 {
+	keyValue, err := conf.MustGetInteger(key)
 	if err != nil {
 		return defaultValue
 	}
