@@ -18,7 +18,7 @@ config, err := configurator.NewConfiguratorFromFile(path)
 #### Using OS environment variables
 
 ```go
-config, err := configurator.NewConfiguratorFromFile(path)
+config, err := configurator.NewConfiguratorFromOSEnvironment()
 ```
 
 ### Getting values
@@ -33,6 +33,12 @@ myString := config.GetString("FOO", "default string")
 
 ```go
 myBoolean := config.GetBoolean("FOO", false)
+```
+
+#### Integer
+
+```go
+myInt := config.GetInteger("FOO", 666)
 ```
 
 #### Required value

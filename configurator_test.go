@@ -117,3 +117,80 @@ func TestGettingARequiredBooleanFails(test *testing.T) {
 	assert.Equal(test, false, value)
 	assert.Error(test, err)
 }
+
+func TestGettingARequiredInt(test *testing.T) {
+	test.Parallel()
+
+	const key = "REQUIRED_INT"
+	err := os.Setenv(key, "1")
+	require.NoError(test, err)
+	defer func() {
+		err := os.Unsetenv(key)
+		assert.NoError(test, err)
+	}()
+
+	config, err := configurator.NewConfiguratorFromOSEnvironment()
+	require.NoError(test, err)
+
+	value, err := config.MustGetInteger(key)
+	assert.Equal(test, int64(1), value)
+	assert.NoError(test, err)
+}
+
+func TestGettingARequiredIntFailsWhenNotFound(test *testing.T) {
+	test.Parallel()
+
+	config, err := configurator.NewConfiguratorFromOSEnvironment()
+	require.NoError(test, err)
+
+	value, err := config.MustGetInteger("REQUIRED_INT_MISSING")
+	assert.Equal(test, int64(0), value)
+	assert.Error(test, err)
+}
+
+func TestGettingARequiredIntFailsWhenInvalid(test *testing.T) {
+	test.Parallel()
+
+	const key = "REQUIRED_INT_INVALID"
+	err := os.Setenv(key, "foo")
+	require.NoError(test, err)
+	defer func() {
+		err := os.Unsetenv(key)
+		assert.NoError(test, err)
+	}()
+
+	config, err := configurator.NewConfiguratorFromOSEnvironment()
+	require.NoError(test, err)
+
+	value, err := config.MustGetInteger(key)
+	assert.Equal(test, int64(0), value)
+	assert.Error(test, err)
+}
+
+func TestGettingAnInt(test *testing.T) {
+	test.Parallel()
+
+	const key = "INT"
+	err := os.Setenv(key, "1")
+	require.NoError(test, err)
+	defer func() {
+		err := os.Unsetenv(key)
+		assert.NoError(test, err)
+	}()
+
+	config, err := configurator.NewConfiguratorFromOSEnvironment()
+	require.NoError(test, err)
+
+	assert.Equal(test, int64(1), config.GetInteger(key, 0))
+}
+
+func TestGettingAnIntWithDefault(test *testing.T) {
+	test.Parallel()
+
+	const key = "INT"
+
+	config, err := configurator.NewConfiguratorFromOSEnvironment()
+	require.NoError(test, err)
+
+	assert.Equal(test, int64(7), config.GetInteger(key, 7))
+}
