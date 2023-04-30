@@ -9,20 +9,19 @@ import (
 // Configurator contains all the methods supported by this library.
 // Create your own interface including only the methods that you need.
 type Configurator interface {
-	MustGetString(key string) (string, error)
-	GetString(key string, defaultValue string) string
-	MustGetBoolean(key string) (bool, error)
-	GetBoolean(key string, defaultValue bool) bool
-	MustGetInteger(key string) (int64, error)
-	GetInteger(key string, defaultValue int64) int64
+	GetString(key string) (string, error)
+	GetBoolean(key string) (bool, error)
+	GetInteger(key string) (int64, error)
 }
 
-type config struct {
+var _ Configurator = Config{}
+
+type Config struct {
 	env map[string]string
 }
 
-// MustGetBoolean return a boolean value or an error if the key couldn't be found, or its value is invalid.
-func (conf config) MustGetBoolean(key string) (bool, error) {
+// GetBoolean return a boolean value or an error if the key couldn't be found, or its value is invalid.
+func (conf Config) GetBoolean(key string) (bool, error) {
 	keyValue, keyIsPresent := conf.env[key]
 	if keyIsPresent {
 		if keyValue == "true" {
@@ -39,19 +38,8 @@ func (conf config) MustGetBoolean(key string) (bool, error) {
 	return false, errors.Errorf("key [%s] not found in env", key)
 }
 
-// GetBoolean returns a boolean value based on the provided key or the default value if it couldn't be found,
-// or its value is invalid.
-func (conf config) GetBoolean(key string, defaultValue bool) bool {
-	keyValue, err := conf.MustGetBoolean(key)
-	if err != nil {
-		return defaultValue
-	}
-
-	return keyValue
-}
-
-// MustGetString returns a string or an error if the key couldn't be found.
-func (conf config) MustGetString(key string) (string, error) {
+// GetString returns a string or an error if the key couldn't be found.
+func (conf Config) GetString(key string) (string, error) {
 	keyValue, keyIsPresent := conf.env[key]
 	if keyIsPresent {
 		return keyValue, nil
@@ -60,18 +48,8 @@ func (conf config) MustGetString(key string) (string, error) {
 	return "", errors.Errorf("key [%s] not found in env", key)
 }
 
-// GetString returns a string value based on the provided key or the default value if it couldn't be found.
-func (conf config) GetString(key string, defaultValue string) string {
-	keyValue, err := conf.MustGetString(key)
-	if err != nil {
-		return defaultValue
-	}
-
-	return keyValue
-}
-
-// MustGetInteger returns an integer or an error if the key couldn't be found, or its value is invalid.
-func (conf config) MustGetInteger(key string) (int64, error) {
+// GetInteger returns an integer or an error if the key couldn't be found, or its value is invalid.
+func (conf Config) GetInteger(key string) (int64, error) {
 	keyValue, keyIsPresent := conf.env[key]
 	if !keyIsPresent {
 		return 0, errors.Errorf("key [%s] not found in env", key)
@@ -83,15 +61,4 @@ func (conf config) MustGetInteger(key string) (int64, error) {
 	}
 
 	return integer, nil
-}
-
-// GetInteger returns an integer value based on the provided key or the default value if it couldn't be found,
-// or its value is invalid.
-func (conf config) GetInteger(key string, defaultValue int64) int64 {
-	keyValue, err := conf.MustGetInteger(key)
-	if err != nil {
-		return defaultValue
-	}
-
-	return keyValue
 }

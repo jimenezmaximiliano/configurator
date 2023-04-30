@@ -27,11 +27,18 @@ func TestGettingAConfiguratorFromAFile(test *testing.T) {
 	}()
 
 	config, err := configurator.NewConfiguratorFromFile(path)
+	require.NoError(test, err)
+	require.NotNil(test, config)
+
+	stringConfig, err := config.GetString("FOO")
 
 	assert.NoError(test, err)
-	assert.NotNil(test, config)
-	assert.Equal(test, "var", config.GetString("FOO", ""))
-	assert.Equal(test, true, config.GetBoolean("BOOL", false))
+	assert.Equal(test, "var", stringConfig)
+
+	booleanConfig, err := config.GetBoolean("BOOL")
+
+	assert.NoError(test, err)
+	assert.Equal(test, true, booleanConfig)
 }
 
 func TestGettingAConfiguratorFromAnInvalidFilePath(test *testing.T) {
@@ -53,5 +60,8 @@ func TestGettingAConfiguratorFromOSEnvVars(test *testing.T) {
 	config, err := configurator.NewConfiguratorFromOSEnvironment()
 	require.NoError(test, err)
 
-	assert.Equal(test, "var", config.GetString("FOO", ""))
+	stringConfig, err := config.GetString("FOO")
+
+	assert.NoError(test, err)
+	assert.Equal(test, "var", stringConfig)
 }
