@@ -26,23 +26,17 @@ config, err := configurator.NewConfiguratorFromOSEnvironment()
 #### String
 
 ```go
-myString := config.GetString("FOO", "default string")
+myString, err := config.GetString("FOO")
 ```
 
 #### Boolean
 
 ```go
-myBoolean := config.GetBoolean("FOO", false)
+myBoolean, err := config.GetBoolean("FOO")
 ```
 
 #### Integer
 
 ```go
-myInt := config.GetInteger("FOO", 666)
-```
-
-#### Required value
-
-```go
-myBoolean, err := config.MustGetString("FOO")
+myInt, err := config.GetInteger("FOO")
 ```

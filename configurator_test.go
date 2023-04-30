@@ -24,7 +24,10 @@ func TestGettingATrueBoolean(test *testing.T) {
 	config, err := configurator.NewConfiguratorFromOSEnvironment()
 	require.NoError(test, err)
 
-	assert.Equal(test, true, config.GetBoolean(key, false))
+	booleanConfig, err := config.GetBoolean(key)
+
+	assert.NoError(test, err)
+	assert.Equal(test, true, booleanConfig)
 }
 
 func TestGettingAFalseBoolean(test *testing.T) {
@@ -41,7 +44,10 @@ func TestGettingAFalseBoolean(test *testing.T) {
 	config, err := configurator.NewConfiguratorFromOSEnvironment()
 	require.NoError(test, err)
 
-	assert.Equal(test, false, config.GetBoolean(key, true))
+	booleanConfig, err := config.GetBoolean(key)
+
+	assert.NoError(test, err)
+	assert.Equal(test, false, booleanConfig)
 }
 
 func TestGettingAnInvalidBoolean(test *testing.T) {
@@ -58,16 +64,10 @@ func TestGettingAnInvalidBoolean(test *testing.T) {
 	config, err := configurator.NewConfiguratorFromOSEnvironment()
 	require.NoError(test, err)
 
-	assert.Equal(test, true, config.GetBoolean(key, true))
-}
+	booleanConfig, err := config.GetBoolean(key)
 
-func TestGettingADefaultBoolean(test *testing.T) {
-	test.Parallel()
-
-	config, err := configurator.NewConfiguratorFromOSEnvironment()
-	require.NoError(test, err)
-
-	assert.Equal(test, true, config.GetBoolean("FOO", true))
+	assert.Error(test, err)
+	assert.Equal(test, false, booleanConfig)
 }
 
 func TestGettingAString(test *testing.T) {
@@ -84,16 +84,10 @@ func TestGettingAString(test *testing.T) {
 	config, err := configurator.NewConfiguratorFromOSEnvironment()
 	require.NoError(test, err)
 
-	assert.Equal(test, "var", config.GetString(key, ""))
-}
+	stringConfig, err := config.GetString(key)
 
-func TestGettingADefaultString(test *testing.T) {
-	test.Parallel()
-
-	config, err := configurator.NewConfiguratorFromOSEnvironment()
-	require.NoError(test, err)
-
-	assert.Equal(test, "var", config.GetString("DEFAULT_STRING", "var"))
+	assert.NoError(test, err)
+	assert.Equal(test, "var", stringConfig)
 }
 
 func TestGettingARequiredStringFails(test *testing.T) {
@@ -102,7 +96,7 @@ func TestGettingARequiredStringFails(test *testing.T) {
 	config, err := configurator.NewConfiguratorFromOSEnvironment()
 	require.NoError(test, err)
 
-	value, err := config.MustGetString("REQUIRED_STRING")
+	value, err := config.GetString("REQUIRED_STRING")
 	assert.Equal(test, "", value)
 	assert.Error(test, err)
 }
@@ -113,7 +107,7 @@ func TestGettingARequiredBooleanFails(test *testing.T) {
 	config, err := configurator.NewConfiguratorFromOSEnvironment()
 	require.NoError(test, err)
 
-	value, err := config.MustGetBoolean("REQUIRED_BOOLEAN")
+	value, err := config.GetBoolean("REQUIRED_BOOLEAN")
 	assert.Equal(test, false, value)
 	assert.Error(test, err)
 }
@@ -132,7 +126,7 @@ func TestGettingARequiredInt(test *testing.T) {
 	config, err := configurator.NewConfiguratorFromOSEnvironment()
 	require.NoError(test, err)
 
-	value, err := config.MustGetInteger(key)
+	value, err := config.GetInteger(key)
 	assert.Equal(test, int64(1), value)
 	assert.NoError(test, err)
 }
@@ -143,7 +137,7 @@ func TestGettingARequiredIntFailsWhenNotFound(test *testing.T) {
 	config, err := configurator.NewConfiguratorFromOSEnvironment()
 	require.NoError(test, err)
 
-	value, err := config.MustGetInteger("REQUIRED_INT_MISSING")
+	value, err := config.GetInteger("REQUIRED_INT_MISSING")
 	assert.Equal(test, int64(0), value)
 	assert.Error(test, err)
 }
@@ -162,35 +156,7 @@ func TestGettingARequiredIntFailsWhenInvalid(test *testing.T) {
 	config, err := configurator.NewConfiguratorFromOSEnvironment()
 	require.NoError(test, err)
 
-	value, err := config.MustGetInteger(key)
+	value, err := config.GetInteger(key)
 	assert.Equal(test, int64(0), value)
 	assert.Error(test, err)
-}
-
-func TestGettingAnInt(test *testing.T) {
-	test.Parallel()
-
-	const key = "INT"
-	err := os.Setenv(key, "1")
-	require.NoError(test, err)
-	defer func() {
-		err := os.Unsetenv(key)
-		assert.NoError(test, err)
-	}()
-
-	config, err := configurator.NewConfiguratorFromOSEnvironment()
-	require.NoError(test, err)
-
-	assert.Equal(test, int64(1), config.GetInteger(key, 0))
-}
-
-func TestGettingAnIntWithDefault(test *testing.T) {
-	test.Parallel()
-
-	const key = "INT"
-
-	config, err := configurator.NewConfiguratorFromOSEnvironment()
-	require.NoError(test, err)
-
-	assert.Equal(test, int64(7), config.GetInteger(key, 7))
 }

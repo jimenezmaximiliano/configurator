@@ -16,19 +16,19 @@ func NewConfiguratorFromFile(path string) (Configurator, error) {
 		return nil, err
 	}
 
-	return config{
+	return Config{
 		env: envVars,
 	}, nil
 }
 
 // NewConfiguratorFromOSEnvironment reads environment variables from the OS.
-func NewConfiguratorFromOSEnvironment() (Configurator, error) {
+func NewConfiguratorFromOSEnvironment() (Config, error) {
 	envVars, err := godotenv.Unmarshal(strings.Join(os.Environ(), "\n"))
 	if err != nil {
-		return nil, errors.Wrap(err, "could not parse env vars from the OS")
+		return Config{}, errors.Wrap(err, "could not parse env vars from the OS")
 	}
 
-	return config{
+	return Config{
 		env: envVars,
 	}, nil
 }
